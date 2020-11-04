@@ -7,9 +7,9 @@ from django.contrib.auth import get_user_model
 #     class Meta:
 #         model = get_user_model()
 #         fields = '__all__'
-
-class PictureSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+class PictureDetailSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True)
 
     class Meta:
         model = Picture
@@ -17,7 +17,8 @@ class PictureSerializer(serializers.ModelSerializer):
 
 
 class PictureListSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True)
 
     class Meta:
         model = Picture

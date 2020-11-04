@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 
 from .models import Picture
-from .serializers import PictureSerializer, PictureListSerializer
+from .serializers import PictureDetailSerializer, PictureListSerializer
 from .forms import PictureForm
 from django.contrib.auth import get_user_model
 
@@ -24,7 +24,7 @@ def picture(request, pk):
     """
     if request.method == 'GET':
         obj = get_object_or_404(Picture, pk=pk)
-        data = PictureSerializer(obj).data
+        data = PictureDetailSerializer(obj).data
 
         return JsonResponse({'data': data})
     elif request.method == 'POST':
