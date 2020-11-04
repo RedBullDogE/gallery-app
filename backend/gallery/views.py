@@ -9,13 +9,36 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 
 
+@csrf_exempt  # TODO
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user, created = get_user_model().objects.get_or_create(
+            username=username,
+            defaults={'email': email,
+                      'password': password}
+        )
+
+        if not created:
+            return HttpResponse('User already exists', status=409)
+
+        return HttpResponse('Registered', status=201)
+
+
 def picture_list(request):
+    """
+    View for taking all Pictures
+    """
     if request.method == 'GET':
         data = PictureListSerializer(Picture.objects.all(), many=True).data
 
         return JsonResponse({'data': data})
     else:
         return HttpResponse('Method is not allowed', status=405)
+
 
 @csrf_exempt  # TODO
 def picture(request, pk):
@@ -31,7 +54,7 @@ def picture(request, pk):
         picture = get_object_or_404(Picture, pk=pk)
         picture.description = request.POST.get('description')
         picture.save()
-        
+
         return HttpResponse('Chenged', status=200)
     elif request.method == 'DELETE':
         get_object_or_404(Picture, pk=pk).delete()
