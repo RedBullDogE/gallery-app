@@ -9,25 +9,6 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 
 
-@csrf_exempt  # TODO
-def register(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        user, created = get_user_model().objects.get_or_create(
-            username=username,
-            defaults={'email': email,
-                      'password': password}
-        )
-
-        if not created:
-            return HttpResponse('User already exists', status=409)
-
-        return HttpResponse('Registered', status=201)
-
-
 def picture_list(request):
     """
     View for taking all Pictures
@@ -84,6 +65,6 @@ def create_picture(request):
 
             return HttpResponse('Successfully created', status=201)
         else:
-            return HttpResponse(f'Not correct field(s)\n{form.errors.items}', status=422)
+            return HttpResponse(f'Not correct field(s)\n{form.errors}', status=422)
     else:
         return HttpResponse('Method is not allowed', status=405)
