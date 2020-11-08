@@ -1,14 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
+from django.contrib.auth import get_user_model
+from rest_framework import permissions
+from rest_framework.decorators import permission_classes, api_view
 
 from .models import Picture
 from .serializers import PictureDetailSerializer, PictureListSerializer
 from .forms import PictureForm
-from django.contrib.auth import get_user_model
 
+# TEMP
 from django.views.decorators.csrf import csrf_exempt
 
 
+@api_view(['GET'])
 def picture_list(request):
     """
     View for taking all Pictures
@@ -21,6 +25,8 @@ def picture_list(request):
         return HttpResponse('Method is not allowed', status=405)
 
 
+@api_view(['POST', 'DELETE'])
+@permission_classes([permissions.IsAuthenticated])
 @csrf_exempt  # TODO
 def picture(request, pk):
     """
@@ -36,7 +42,7 @@ def picture(request, pk):
         picture.description = request.POST.get('description')
         picture.save()
 
-        return HttpResponse('Chenged', status=200)
+        return HttpResponse('Changed', status=200)
     elif request.method == 'DELETE':
         get_object_or_404(Picture, pk=pk).delete()
 
@@ -45,6 +51,8 @@ def picture(request, pk):
         return HttpResponse('Method is not allowed', status=405)
 
 
+@api_view(['POST', 'DELETE'])
+@permission_classes([permissions.IsAuthenticated])
 @csrf_exempt  # TODO
 def create_picture(request):
     """
