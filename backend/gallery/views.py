@@ -13,66 +13,64 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @api_view(['GET'])
+@permission_classes([permissions.AllowAny])
 def picture_list(request):
     """
     View for taking all Pictures
     """
-    if request.method == 'GET':
-        data = PictureListSerializer(Picture.objects.all(), many=True).data
+    data = PictureListSerializer(Picture.objects.all(), many=True).data
 
-        return JsonResponse({'data': data})
-    else:
-        return HttpResponse('Method is not allowed', status=405)
+    return JsonResponse({'data': data})
 
 
-@api_view(['POST', 'DELETE'])
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def picture_details(request, pk):
+    obj = get_object_or_404(Picture, pk=pk)
+    data = PictureDetailSerializer(obj).data
+
+    return JsonResponse({'data': data})
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def picture_change(request, pk):
+    picture = get_object_or_404(Picture, pk=pk)
+    picture.description = request.POST.get('description')
+    picture.save()
+
+    return HttpResponse('Changed', status=200)
+
+
+@api_view(['DELETE'])
 @permission_classes([permissions.IsAuthenticated])
 @csrf_exempt  # TODO
-def picture(request, pk):
-    """
-    View as part of CRUD. Implements Reading, Updating and Deleting methods.
-    """
-    if request.method == 'GET':
-        obj = get_object_or_404(Picture, pk=pk)
-        data = PictureDetailSerializer(obj).data
+def picture_delete(request, pk):
+    get_object_or_404(Picture, pk=pk).delete()
 
-        return JsonResponse({'data': data})
-    elif request.method == 'POST':
-        picture = get_object_or_404(Picture, pk=pk)
-        picture.description = request.POST.get('description')
-        picture.save()
-
-        return HttpResponse('Changed', status=200)
-    elif request.method == 'DELETE':
-        get_object_or_404(Picture, pk=pk).delete()
-
-        return HttpResponse('Deleted', status=200)
-    else:
-        return HttpResponse('Method is not allowed', status=405)
+    return HttpResponse('Deleted', status=200)
 
 
-@api_view(['POST', 'DELETE'])
+@api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 @csrf_exempt  # TODO
-def create_picture(request):
+def picture_create(request, pk):
     """
     View as part of CRUD. Implements Create method.
     """
-    if request.method == 'POST':
-        form = PictureForm(request.POST, request.FILES)
 
-        if form.is_valid():
-            data = form.cleaned_data
-            user = get_object_or_404(get_user_model(), id=data['author'])
+    form = PictureForm(request.POST, request.FILES)
 
-            Picture.objects.create(
-                author=user,
-                description=data['description'],
-                file=data['file']
-            )
+    if form.is_valid():
+        data = form.cleaned_data
+        user = get_object_or_404(get_user_model(), id=data['author'])
 
-            return HttpResponse('Successfully created', status=201)
-        else:
-            return HttpResponse(f'Not correct field(s)\n{form.errors}', status=422)
+        Picture.objects.create(
+            author=user,
+            description=data['description'],
+            file=data['file']
+        )
+
+        return HttpResponse('Successfully created', status=201)
     else:
-        return HttpResponse('Method is not allowed', status=405)
+        return HttpResponse(f'Not correct field(s)\n{form.errors}', status=422)
