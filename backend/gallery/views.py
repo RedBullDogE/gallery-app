@@ -15,64 +15,15 @@ from .forms import PictureForm
 from django.views.decorators.csrf import csrf_exempt
 
 
-@api_view(['GET'])
-@permission_classes([permissions.AllowAny])
-def picture_list(request):
-    """
-    View for taking all Pictures
-    """
-    data = PictureListSerializer(Picture.objects.all(), many=True).data
-
-    return JsonResponse({'data': data})
-
-
-@api_view(['GET'])
-@permission_classes([permissions.AllowAny])
-def picture_details(request, pk):
-    obj = get_object_or_404(Picture, pk=pk)
-    data = PictureDetailSerializer(obj).data
-
-    return JsonResponse({'data': data})
-
-
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
-def picture_change(request, pk):
-    picture = get_object_or_404(Picture, pk=pk)
-    body = json.loads(request.body)
-    picture.description = body['description']
-    picture.save()
-
-    data = {
-        'status': 'success',
-        'data': PictureDetailSerializer(picture).data
-    }
-
-    return JsonResponse(data, status=200)
-
-
-@api_view(['DELETE'])
-@permission_classes([permissions.IsAuthenticated])
-@csrf_exempt  # TODO
-def picture_delete(request, pk):
-    get_object_or_404(Picture, pk=pk).delete()
-
-    data = {
-        'status': 'success'
-    }
-
-    return JsonResponse(data, status=200)
-
-
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 @parser_classes([MultiPartParser])
 @csrf_exempt  # TODO
 def picture_create(request):
     """
-    View as part of CRUD. Implements Create method.
+    View for adding new pictures
+    Part of CRUD implementation (CREATE)
     """
-
     form = PictureForm(request.POST, request.FILES)
 
     if form.is_valid():
@@ -96,3 +47,66 @@ def picture_create(request):
             'details': 'Not correct field(s)'
         }
         return JsonResponse(data, status=422)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def picture_list(request):
+    """
+    View for taking all Pictures.
+    Part of CRUD implementation (READ | list)
+    """
+    data = PictureListSerializer(Picture.objects.all(), many=True).data
+
+    return JsonResponse({'data': data}, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def picture_details(request, pk):
+    """
+    View for taking details of the specified picture 
+    Part of CRUD implementation (READ | details)
+    """
+    obj = get_object_or_404(Picture, pk=pk)
+    data = PictureDetailSerializer(obj).data
+
+    return JsonResponse({'data': data}, status=200)
+
+
+# TODO: to patch?
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def picture_change(request, pk):
+    """
+    View for changing of the specified picture details
+    Part of CRUD implementation (UPDATE)
+    """
+    picture = get_object_or_404(Picture, pk=pk)
+    body = json.loads(request.body)
+    picture.description = body['description']
+    picture.save()
+
+    data = {
+        'status': 'success',
+        'data': PictureDetailSerializer(picture).data
+    }
+
+    return JsonResponse(data, status=200)
+
+
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+@csrf_exempt  # TODO
+def picture_delete(request, pk):
+    """
+    View for deleting of the specified picture
+    Part of CRUD implementation (DELETE)
+    """
+    get_object_or_404(Picture, pk=pk).delete()
+
+    data = {
+        'status': 'success'
+    }
+
+    return JsonResponse(data, status=200)
