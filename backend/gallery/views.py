@@ -1,8 +1,11 @@
+import json
+
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
-from rest_framework.decorators import permission_classes, api_view
+from rest_framework.decorators import permission_classes, parser_classes, api_view
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import Picture
 from .serializers import PictureDetailSerializer, PictureListSerializer
@@ -36,10 +39,16 @@ def picture_details(request, pk):
 @permission_classes([permissions.IsAuthenticated])
 def picture_change(request, pk):
     picture = get_object_or_404(Picture, pk=pk)
-    picture.description = request.POST.get('description')
+    body = json.loads(request.body)
+    picture.description = body['description']
     picture.save()
 
-    return HttpResponse('Changed', status=200)
+    data = {
+        'status': 'success',
+        'data': PictureDetailSerializer(picture).data
+    }
+
+    return JsonResponse(data, status=200)
 
 
 @api_view(['DELETE'])
@@ -48,13 +57,18 @@ def picture_change(request, pk):
 def picture_delete(request, pk):
     get_object_or_404(Picture, pk=pk).delete()
 
-    return HttpResponse('Deleted', status=200)
+    data = {
+        'status': 'success'
+    }
+
+    return JsonResponse(data, status=200)
 
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
+@parser_classes([MultiPartParser])
 @csrf_exempt  # TODO
-def picture_create(request, pk):
+def picture_create(request):
     """
     View as part of CRUD. Implements Create method.
     """
@@ -65,12 +79,20 @@ def picture_create(request, pk):
         data = form.cleaned_data
         user = get_object_or_404(get_user_model(), id=data['author'])
 
-        Picture.objects.create(
+        obj = Picture.objects.create(
             author=user,
             description=data['description'],
             file=data['file']
         )
 
-        return HttpResponse('Successfully created', status=201)
+        data = {
+            'status': 'success',
+            'data': PictureDetailSerializer(obj).data
+        }
+        return JsonResponse(data, status=201)
     else:
-        return HttpResponse(f'Not correct field(s)\n{form.errors}', status=422)
+        data = {
+            'status': 'failed',
+            'details': 'Not correct field(s)'
+        }
+        return JsonResponse(data, status=422)
