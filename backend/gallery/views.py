@@ -23,7 +23,7 @@ def picture_create(request):
     """
     View for adding new pictures
     Part of CRUD implementation (CREATE)
-    """  
+    """
     form = PictureForm(request.POST, request.FILES)
 
     if form.is_valid():
