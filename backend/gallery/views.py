@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework.decorators import permission_classes, parser_classes, api_view
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.paginator import Paginator
 
 from .models import Picture
 from .serializers import PictureDetailSerializer, PictureListSerializer
@@ -56,9 +57,18 @@ def picture_list(request):
     View for taking all Pictures.
     Part of CRUD implementation (READ | list)
     """
-    data = PictureListSerializer(Picture.objects.all(), many=True).data
+    paginator = Paginator(Picture.objects.all(), 2)
+    page = request.GET.get('page') or 1
 
-    return JsonResponse({'data': data}, status=200)
+    picture_page = paginator.get_page(page)
+
+    data = {
+        "page": picture_page.number,
+        "pageCount": picture_page.paginator.num_pages,
+        "data": PictureListSerializer(picture_page, many=True).data
+    }
+
+    return JsonResponse(data, status=200)
 
 
 @api_view(['GET'])
