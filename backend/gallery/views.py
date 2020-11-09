@@ -83,6 +83,14 @@ def picture_change(request, pk):
     Part of CRUD implementation (UPDATE)
     """
     picture = get_object_or_404(Picture, pk=pk)
+
+    if picture.author != request.user:
+        data = {
+            'status': 'failed',
+            'details': 'Not allowed'
+        }
+        return JsonResponse(data, status=403)
+
     body = json.loads(request.body)
     picture.description = body['description']
     picture.save()
@@ -103,10 +111,19 @@ def picture_delete(request, pk):
     View for deleting of the specified picture
     Part of CRUD implementation (DELETE)
     """
-    get_object_or_404(Picture, pk=pk).delete()
+    picture = get_object_or_404(Picture, pk=pk)
+
+    if picture.author != request.user:
+        data = {
+            'status': 'failed',
+            'details': 'Not allowed'
+        }
+        return JsonResponse(data, status=403)
 
     data = {
-        'status': 'success'
+        'status': 'success',
+        'data': PictureDetailSerializer(picture).data
     }
+    picture.delete()
 
     return JsonResponse(data, status=200)
