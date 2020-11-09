@@ -23,12 +23,12 @@ def picture_create(request):
     """
     View for adding new pictures
     Part of CRUD implementation (CREATE)
-    """
+    """  
     form = PictureForm(request.POST, request.FILES)
 
     if form.is_valid():
         data = form.cleaned_data
-        user = get_object_or_404(get_user_model(), id=data['author'])
+        user = get_object_or_404(get_user_model(), id=request.user.id)
 
         obj = Picture.objects.create(
             author=user,
