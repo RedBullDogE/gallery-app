@@ -57,7 +57,7 @@ def picture_list(request):
     View for taking all Pictures.
     Part of CRUD implementation (READ | list)
     """
-    paginator = Paginator(Picture.objects.all(), 2)
+    paginator = Paginator(Picture.objects.all(), 9)
     page = request.GET.get('page') or 1
 
     picture_page = paginator.get_page(page)
