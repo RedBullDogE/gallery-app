@@ -28,6 +28,7 @@ export default {
         cursor: pointer;
         width: 100%;
         height: 100%;
+        max-height: 30rem;
         object-fit: cover;
     }
 }

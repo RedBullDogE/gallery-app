@@ -17,20 +17,29 @@
             />
         </div>
 
+        <Pagination
+            :pageCount="pageCount"
+            :currentPage="currentPage"
+            @next="nextPage"
+            @prev="prevPage"
+            @set-page="setPage"
+        />
+
         <Loader v-if="loading.isLoading" :error="loading.error" />
     </div>
 </template>
 
 <script>
-// @ is an alias to /src
 import PictureCard from "@/components/PictureCard.vue";
 import Loader from "@/components/Loader.vue";
+import Pagination from "@/components/Pagination.vue";
 
 export default {
     name: "Home",
     components: {
         PictureCard,
         Loader,
+        Pagination,
     },
     data() {
         return {
@@ -50,6 +59,28 @@ export default {
 
             if (this.loading.loadedPictureCount >= this.pictures.length)
                 this.loading.isLoading = false;
+        },
+        async updateData(url) {
+            const response = await fetch(url, {
+                method: "GET",
+            });
+
+            const data = await response.json();
+
+            this.currentPage = data.page;
+            this.pageCount = data.pageCount;
+            this.pictures = data.data;
+        },
+        async prevPage() {
+            const newPage = this.currentPage - 1;
+            await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+        },
+        async nextPage() {
+            const newPage = this.currentPage + 1;
+            await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+        },
+        async setPage(page) {
+            await this.updateData(`http://127.0.0.1:8000/api/list/?page=${page}`);
         },
     },
     async mounted() {
@@ -74,7 +105,13 @@ export default {
 
 <style lang="scss">
 .home {
-    margin: 5rem 15rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    margin: 5rem auto;
+    width: 80%;
+    max-width: 120rem;
 
     .home-title {
         text-align: center;
@@ -84,9 +121,9 @@ export default {
     .picture-grid {
         display: grid;
         margin: 0 10rem;
-        grid-template-columns: repeat(auto-fit, minmax(40rem, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
         grid-auto-rows: minmax(30rem, 1fr);
-        grid-gap: 1.5rem;
+        grid-gap: 2rem;
     }
 }
 </style>
