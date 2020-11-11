@@ -1,29 +1,30 @@
 <template>
     <div class="home">
         <h2 class="home-title">HOME PAGE</h2>
-        <div
-            class="picture-grid"
-            v-if="pictures.length"
-            v-show="!loading.isLoading"
-        >
-            <PictureCard
-                v-for="pic in pictures"
-                :key="pic.id"
-                :picture="pic"
-                @pictureLoaded="loadListener"
-                @click.native="
-                    $router.push({ name: 'Details', params: { id: pic.id } })
-                "
+        <div class="home-content" v-show="!loading.isLoading">
+            <div class="picture-grid" v-if="pictures.length">
+                <PictureCard
+                    v-for="pic in pictures"
+                    :key="pic.id"
+                    :picture="pic"
+                    @pictureLoaded="loadListener"
+                    @click.native="
+                        $router.push({
+                            name: 'Details',
+                            params: { id: pic.id },
+                        })
+                    "
+                />
+            </div>
+
+            <Pagination
+                :pageCount="pageCount"
+                :currentPage="currentPage"
+                @next="nextPage"
+                @prev="prevPage"
+                @set-page="setPage"
             />
         </div>
-
-        <Pagination
-            :pageCount="pageCount"
-            :currentPage="currentPage"
-            @next="nextPage"
-            @prev="prevPage"
-            @set-page="setPage"
-        />
 
         <Loader v-if="loading.isLoading" :error="loading.error" />
     </div>
@@ -61,8 +62,8 @@ export default {
                 this.loading.isLoading = false;
         },
         async updateData(url) {
-            this.loading.loadedPictureCount = 0
-            this.loading.isLoading = true
+            this.loading.loadedPictureCount = 0;
+            this.loading.isLoading = true;
             const response = await fetch(url, {
                 method: "GET",
             });
@@ -76,28 +77,47 @@ export default {
         async prevPage() {
             if (this.currentPage > 1) {
                 const newPage = this.currentPage - 1;
-                this.$router.push('')
-                await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+                this.$router.push({ name: "Home", query: { page: newPage } });
+                await this.updateData(
+                    `http://127.0.0.1:8000/api/list/?page=${newPage}`
+                );
             }
         },
         async nextPage() {
             if (this.currentPage < this.pageCount) {
                 const newPage = this.currentPage + 1;
-                await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+                this.$router.push({ name: "Home", query: { page: newPage } });
+
+                await this.updateData(
+                    `http://127.0.0.1:8000/api/list/?page=${newPage}`
+                );
             }
         },
         async setPage(page) {
-            await this.updateData(`http://127.0.0.1:8000/api/list/?page=${page}`);
+            if (this.currentPage !== page) {
+                this.$router
+                    .push({ name: "Home", query: { page: page } })
+                    .catch((err) => err);
+
+                await this.updateData(
+                    `http://127.0.0.1:8000/api/list/?page=${page}`
+                );
+            }
         },
     },
     async mounted() {
+        const page = this.$route.query.page;
         setTimeout(() => {
             if (this.loading.isLoading && this.pictures.length) {
                 this.loading.error = true;
             }
-        }, 3000);
+        }, 5000);
 
-        const response = await fetch("http://127.0.0.1:8000/api/list/", {
+        const url = page
+            ? `http://127.0.0.1:8000/api/list/?page=${page}`
+            : "http://127.0.0.1:8000/api/list/";
+
+        const response = await fetch(url, {
             method: "GET",
         });
 
@@ -112,10 +132,6 @@ export default {
 
 <style lang="scss">
 .home {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-
     margin: 5rem auto;
     width: 80%;
     max-width: 120rem;
@@ -125,12 +141,17 @@ export default {
         margin-bottom: 2rem;
     }
 
-    .picture-grid {
-        display: grid;
-        margin: 0 10rem;
-        grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-        grid-auto-rows: minmax(30rem, 1fr);
-        grid-gap: 2rem;
+    .home-content {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        .picture-grid {
+            display: grid;
+            margin: 0 10rem;
+            grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+            grid-auto-rows: minmax(30rem, 1fr);
+            grid-gap: 2rem;
+        }
     }
 }
 </style>
