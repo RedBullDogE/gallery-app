@@ -83,7 +83,8 @@ export default {
 
     .picture-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+        margin: 0 10rem;
+        grid-template-columns: repeat(auto-fit, minmax(40rem, 1fr));
         grid-auto-rows: minmax(30rem, 1fr);
         grid-gap: 1.5rem;
     }

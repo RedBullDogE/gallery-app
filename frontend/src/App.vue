@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <h1>Gallery App</h1>
+        <h1 class="app-title">Gallery App</h1>
         <router-view />
     </div>
 </template>
@@ -24,5 +24,9 @@ h1 {
 
 h2 {
     font-size: 2.6rem;
+}
+
+.app-title {
+    margin: 1rem 3rem;
 }
 </style>
