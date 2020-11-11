@@ -30,6 +30,8 @@ export default {
         text-decoration: none;
         cursor: pointer;
         font-size: 1.6rem;
+        border-radius: 5px;
+        transition: background-color .3s;
 
         &.active {
             background-color: lightcoral;

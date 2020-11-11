@@ -61,6 +61,8 @@ export default {
                 this.loading.isLoading = false;
         },
         async updateData(url) {
+            this.loading.loadedPictureCount = 0
+            this.loading.isLoading = true
             const response = await fetch(url, {
                 method: "GET",
             });
@@ -72,12 +74,17 @@ export default {
             this.pictures = data.data;
         },
         async prevPage() {
-            const newPage = this.currentPage - 1;
-            await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+            if (this.currentPage > 1) {
+                const newPage = this.currentPage - 1;
+                this.$router.push('')
+                await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+            }
         },
         async nextPage() {
-            const newPage = this.currentPage + 1;
-            await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+            if (this.currentPage < this.pageCount) {
+                const newPage = this.currentPage + 1;
+                await this.updateData(`http://127.0.0.1:8000/api/list/?page=${newPage}`);
+            }
         },
         async setPage(page) {
             await this.updateData(`http://127.0.0.1:8000/api/list/?page=${page}`);
@@ -85,7 +92,7 @@ export default {
     },
     async mounted() {
         setTimeout(() => {
-            if (this.loading.isLoading) {
+            if (this.loading.isLoading && this.pictures.length) {
                 this.loading.error = true;
             }
         }, 3000);
