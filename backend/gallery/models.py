@@ -14,7 +14,7 @@ class Picture(models.Model):
         null=True,
         blank=True
     )
-    date = models.DateField(
+    pub_date = models.DateTimeField(
         auto_now_add=True
     )
     file = models.ImageField(
@@ -31,4 +31,7 @@ class Picture(models.Model):
                 new_size = (1080, 1080)
                 img.thumbnail(new_size)
                 img.save(self.file.path)
+
+    class Meta:
+        ordering = ['-pub_date']
 
