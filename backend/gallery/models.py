@@ -29,7 +29,7 @@ class Picture(models.Model):
             img = Image.open(self.file.path)
             if img.height > 1080 or img.width > 1080:
                 new_size = (1080, 1080)
-                img.thumbnail(new_size)
+                img.thumbnail(new_size, Image.ANTIALIAS)
                 img.save(self.file.path)
 
     class Meta:

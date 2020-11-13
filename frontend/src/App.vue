@@ -77,6 +77,7 @@ h2 {
         display: flex;
         justify-content: flex-end;
         align-items: center;
+        margin: 0 5rem;
 
         a {
             font-size: 2rem;

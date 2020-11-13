@@ -27,7 +27,11 @@
                         name="description"
                         v-model="editing.description"
                     ></textarea>
-                    <button type="submit" @click.prevent="updateDescription">
+                    <button
+                        class="edit-btn"
+                        type="submit"
+                        @click.prevent="updateDescription"
+                    >
                         Change
                     </button>
                 </form>
@@ -166,11 +170,11 @@ export default {
                         console.log("No permissions");
                         break;
                     case 200: {
-                        const responseData = await response.json()
+                        const responseData = await response.json();
 
                         this.picture = responseData.data;
                         break;
-                    }                        
+                    }
                     default:
                         console.log(
                             "Something went wrong with updating data..."
@@ -225,6 +229,7 @@ export default {
 
         &__desc {
             font-size: 1.4rem;
+            white-space: pre-wrap;
         }
 
         &__edit {
@@ -256,6 +261,27 @@ export default {
 
                 padding: 1rem 1.5rem;
                 border-radius: 0.5rem;
+            }
+
+            .edit-btn {
+                padding: 0.5rem 1.2rem;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                background-color: lightseagreen;
+                color: #fff;
+
+                border: 2px solid seagreen;
+
+                margin-top: 1.5rem;
+
+                box-shadow: 0 .5rem 1.2rem #777;
+                transition: transform .2s;
+
+                &:active,
+                &:focus {
+                    transform: translateY(3px);
+                    outline: none;
+                }
             }
         }
     }
