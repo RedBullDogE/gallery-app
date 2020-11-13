@@ -12,11 +12,25 @@
             />
 
             <div class="picture-details__info">
-                <a class="picture-details__edit" v-if="isAuthor && user">Edit</a>
+                <a
+                    class="picture-details__edit"
+                    v-if="editing.isAuthor && user"
+                    @click="editing.isEdit = !editing.isEdit"
+                    >Edit</a
+                >
                 <p class="picture-details__author">{{ picture.author }}</p>
-                <p class="picture-details__desc">
+                <p class="picture-details__desc" v-if="!editing.isEdit">
                     {{ picture.description }}
                 </p>
+                <form class="picture-details__edit-form" method="post" v-else>
+                    <textarea
+                        name="description"
+                        v-model="editing.description"
+                    ></textarea>
+                    <button type="submit" @click.prevent="updateDescription">
+                        Change
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -29,7 +43,11 @@ export default {
         return {
             notFound: false,
             picture: null,
-            isAuthor: false,
+            editing: {
+                isAuthor: false,
+                isEdit: false,
+                description: "",
+            },
         };
     },
     props: ["user"],
@@ -45,7 +63,7 @@ export default {
 
                     const requestData = await afterRefreshResponse.json();
                     this.picture = requestData.data;
-                    this.isAuthor = requestData.isAuthor;
+                    this.editing.isAuthor = requestData.isAuthor;
                 }
                 break;
             }
@@ -55,7 +73,8 @@ export default {
             case 200: {
                 const requestData = await response.json();
                 this.picture = requestData.data;
-                this.isAuthor = requestData.isAuthor;
+                this.editing.description = this.picture.description;
+                this.editing.isAuthor = requestData.isAuthor;
 
                 break;
             }
@@ -121,6 +140,46 @@ export default {
 
             return false;
         },
+        async updateDescription() {
+            const id = this.picture.id;
+            const access = localStorage.getItem("accessToken");
+
+            const newDescription = this.editing.description;
+
+            if (newDescription !== this.picture.description) {
+                const response = await fetch(
+                    `http://localhost:8000/api/update/${id}/`,
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${access}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            description: newDescription,
+                        }),
+                    }
+                );
+
+                switch (response.status) {
+                    case 403:
+                        console.log("No permissions");
+                        break;
+                    case 200: {
+                        const responseData = await response.json()
+
+                        this.picture = responseData.data;
+                        break;
+                    }                        
+                    default:
+                        console.log(
+                            "Something went wrong with updating data..."
+                        );
+                }
+            }
+
+            this.editing.isEdit = false;
+        },
     },
 };
 </script>
@@ -174,11 +233,29 @@ export default {
             margin-right: 2rem;
 
             float: right;
-            transition: color .2s;
+            transition: color 0.2s;
             cursor: pointer;
 
             &:hover {
                 color: lightseagreen;
+            }
+        }
+
+        &__edit-form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 1rem 0;
+
+            textarea {
+                font-family: "Open Sans", sans-serif;
+                width: 50%;
+                height: 10rem;
+                resize: none;
+                outline: none;
+
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
             }
         }
     }
