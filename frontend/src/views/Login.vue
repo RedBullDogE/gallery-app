@@ -2,15 +2,18 @@
     <div class="login">
         <form class="login-form" @submit.prevent="checkForm" method="POST">
             <h2>Login form</h2>
-            <p>
+            <p class="error" v-if="incorrectCredentials">
+                Inccorrect username or password
+            </p>
+            <div>
                 <label for="username">Username</label>
                 <input v-model="username" name="username" type="text" />
-            </p>
+            </div>
 
-            <p>
+            <div>
                 <label for="password">Password</label>
                 <input type="password" v-model="password" name="password" />
-            </p>
+            </div>
 
             <button type="submit">Log In</button>
         </form>
@@ -23,39 +26,53 @@ export default {
         return {
             username: "",
             password: "",
+            incorrectCredentials: false,
         };
     },
     methods: {
         async checkForm() {
             if (this.username && this.password) {
-                const sentData = {
+                const userData = {
                     username: this.username,
-                    password: this.password
+                    password: this.password,
+                };
+
+                const response = await fetch(
+                    "http://127.0.0.1:8000/api/token/",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(userData),
+                    }
+                );
+
+                switch (response.status) {
+                    case 401:
+                        this.incorrectCredentials = true;
+
+                        break;
+                    case 200: {
+                        const data = await response.json();
+
+                        if (data.access && data.refresh) {
+                            localStorage.setItem("accessToken", data.access);
+                            localStorage.setItem("refreshToken", data.refresh);
+                            localStorage.setItem("user", this.username);
+
+                            this.$emit("login", this.username);
+
+                            this.$router.push({ name: "Home" });
+                        } else {
+                            console.log("Something goes wrong with token...");
+                        }
+
+                        break;
+                    }
+                    default:
+                        console.log("Something goes wrong with request...");
                 }
-                const response = await fetch("http://127.0.0.1:8000/api/token/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(sentData),
-                });
-                
-                if (response.status == 401) return
-
-                const data = await response.json();
-
-                if (data.access && data.refresh) {
-                    localStorage.setItem('accessToken', data.access);
-                    localStorage.setItem('refreshToken', data.refresh);
-                    localStorage.setItem('user', this.username);
-
-                    this.$emit('login', this.username);
-
-                    this.$router.push({ name: 'Home' })
-                } else {
-                    console.log('Something goes wrong with token...')
-                }
-
             }
         },
     },
@@ -78,7 +95,7 @@ export default {
         flex-direction: column;
         align-items: center;
 
-        p {
+        div {
             margin: 1rem 0;
 
             label {
@@ -96,6 +113,12 @@ export default {
                     background-color: rgba(#ccc, 0.5);
                 }
             }
+        }
+
+        .error {
+            font-size: 1.2rem;
+            color: red;
+            margin-top: 0.5rem;
         }
 
         button {
