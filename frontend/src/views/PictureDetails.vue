@@ -28,40 +28,60 @@ export default {
         return {
             notFound: false,
             picture: null,
+            isAuthor: false,
         };
     },
     props: ["user"],
     async mounted() {
-        const id = this.$route.params.id;
-
-        const headers = this.user
-            ? {
-                  Authorization: `Bearer ${localStorage.getItem(
-                      "accessToken"
-                  )}`,
-                  "Content-Type": "application/json",
-              }
-            : {
-                  "Content-Type": "application/json",
-              };
-
-        const response = await fetch(`http://localhost:8000/api/list/${id}/`, {
-            method: "GET",
-            headers,
-        });
+        const response = await this.getData();
 
         switch (response.status) {
-            case 403:
-                this.refresh();
+            case 403: {
+                const isRefreshed = await this.refresh();
+
+                if (isRefreshed) {
+                    const afterRefreshResponse = await this.getData();
+
+                    const requestData = await afterRefreshResponse.json();
+                    this.picture = requestData.data;
+                    this.isAuthor = requestData.isAuthor;
+                }
                 break;
+            }
             case 404:
                 this.notFound = true;
                 break;
+            case 200: {
+                const requestData = await response.json();
+                this.picture = requestData.data;
+                this.isAuthor = requestData.isAuthor;
+
+                break;
+            }
             default:
-                this.picture = await response.json().then((data) => data.data);
+                console.log("Something went wrong with data requesting...");
         }
     },
     methods: {
+        async getData() {
+            const id = this.$route.params.id;
+
+            const headers = this.user
+                ? {
+                      Authorization: `Bearer ${localStorage.getItem(
+                          "accessToken"
+                      )}`,
+                      "Content-Type": "application/json",
+                  }
+                : {
+                      "Content-Type": "application/json",
+                  };
+
+            return await fetch(`http://localhost:8000/api/list/${id}/`, {
+                method: "GET",
+                headers,
+            });
+        },
         async refresh() {
             const access = localStorage.getItem("accessToken");
             const refresh = localStorage.getItem("refreshToken");
@@ -87,12 +107,18 @@ export default {
                     localStorage.removeItem("refreshToken");
 
                     break;
-                default: {
+                case 200: {
                     const data = await response.json();
                     const newAccessToken = data.access;
                     localStorage.setItem("accessToken", newAccessToken);
+
+                    return true;
                 }
+                default:
+                    console.log("Something went wrong with refreshing..");
             }
+
+            return false;
         },
     },
 };
