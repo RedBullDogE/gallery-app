@@ -30,17 +30,70 @@ export default {
             picture: null,
         };
     },
+    props: ["user"],
     async mounted() {
         const id = this.$route.params.id;
 
+        const headers = this.user
+            ? {
+                  Authorization: `Bearer ${localStorage.getItem(
+                      "accessToken"
+                  )}`,
+                  "Content-Type": "application/json",
+              }
+            : {
+                  "Content-Type": "application/json",
+              };
+
         const response = await fetch(`http://localhost:8000/api/list/${id}/`, {
             method: "GET",
+            headers,
         });
-        if (response.status == 404) {
-            this.notFound = true;
-        } else {
-            this.picture = await response.json().then((data) => data.data);
+
+        switch (response.status) {
+            case 403:
+                this.refresh();
+                break;
+            case 404:
+                this.notFound = true;
+                break;
+            default:
+                this.picture = await response.json().then((data) => data.data);
         }
+    },
+    methods: {
+        async refresh() {
+            const access = localStorage.getItem("accessToken");
+            const refresh = localStorage.getItem("refreshToken");
+
+            const response = await fetch(
+                "http://localhost:8000/api/token/refresh/",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${access}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        refresh,
+                    }),
+                }
+            );
+
+            switch (response.status) {
+                case 401:
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
+
+                    break;
+                default: {
+                    const data = await response.json();
+                    const newAccessToken = data.access;
+                    localStorage.setItem("accessToken", newAccessToken);
+                }
+            }
+        },
     },
 };
 </script>

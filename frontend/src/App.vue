@@ -1,9 +1,48 @@
 <template>
     <div id="app">
         <h1 class="app-title">Gallery App</h1>
-        <router-view />
+        <div class="auth-container">
+            <router-link :to="{ name: 'Login' }" class="login" v-if="!user"
+                >Login</router-link
+            >
+            <a href="#" class="logout" @click="logout" v-else>Logout</a>
+            <a href="#" class="signin" v-if="!user">Sign In</a>
+        </div>
+        <router-view @login="login" :user="user" />
     </div>
 </template>
+
+<script>
+export default {
+    data() {
+        return {
+            user: null,
+        };
+    },
+    methods: {
+        login(username) {
+            this.user = username;
+        },
+        logout() {
+            this.user = null;
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("user");
+        },
+    },
+    mounted() {
+        const user = localStorage.getItem("user");
+
+        if (user) {
+            // const access = localStorage.getItem("accessToken"),
+                // refresh = localStorage.getItem("refreshToken");
+
+            this.user = user;
+
+        }
+    },
+};
+</script>
 
 <style lang="scss">
 * {
@@ -14,7 +53,7 @@
 
 html {
     font-size: 62.5%;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
 }
 
 h1 {
@@ -26,7 +65,31 @@ h2 {
     font-size: 2.6rem;
 }
 
-.app-title {
-    margin: 1rem 3rem;
+#app {
+    margin: 2rem;
+
+    .app-title {
+        margin: 1rem 3rem;
+    }
+
+    .auth-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        a {
+            font-size: 2rem;
+            text-decoration: none;
+            margin-right: 2rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 2rem rgba(blueviolet, 0.6);
+            transition: transform 0.2s;
+
+            &:active {
+                transform: translateY(2px);
+            }
+        }
+    }
 }
 </style>
