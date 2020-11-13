@@ -1,8 +1,5 @@
 <template>
     <div class="home">
-        <div class="user-container">
-            <p>{{ user || 'Anonymous'}}</p>
-        </div>
         <h2 class="home-title">HOME PAGE</h2>
         <div class="home-content" v-show="!loading.isLoading">
             <div class="picture-grid" v-if="pictures.length">
@@ -139,16 +136,6 @@ export default {
     margin: 5rem auto;
     width: 80%;
     max-width: 120rem;
-
-    .user-container {
-        display: flex;
-        justify-content: flex-end;
-        font-size: 2rem;
-
-        p {
-            margin: 0 2rem;
-        }
-    }
 
     .home-title {
         text-align: center;
