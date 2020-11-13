@@ -12,6 +12,7 @@
             />
 
             <div class="picture-details__info">
+                <a class="picture-details__edit" v-if="isAuthor && user">Edit</a>
                 <p class="picture-details__author">{{ picture.author }}</p>
                 <p class="picture-details__desc">
                     {{ picture.description }}
@@ -128,6 +129,7 @@ export default {
 .picture-container {
     margin: 5rem auto;
     width: fit-content;
+    min-width: 50%;
 
     .link {
         display: inline-block;
@@ -147,6 +149,8 @@ export default {
         box-shadow: 0 0.8rem 2rem rgba(#111, 0.5);
         padding: 1.8rem 2rem;
 
+        min-width: 50%;
+
         img {
             display: block;
             margin: 0 auto;
@@ -162,6 +166,20 @@ export default {
 
         &__desc {
             font-size: 1.4rem;
+        }
+
+        &__edit {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-right: 2rem;
+
+            float: right;
+            transition: color .2s;
+            cursor: pointer;
+
+            &:hover {
+                color: lightseagreen;
+            }
         }
     }
 }

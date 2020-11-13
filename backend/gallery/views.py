@@ -81,7 +81,9 @@ def picture_details(request, pk):
     obj = get_object_or_404(Picture, pk=pk)
     data = PictureDetailSerializer(obj).data
 
-    return JsonResponse({'data': data}, status=200)
+    is_author = request.user == obj.author
+
+    return JsonResponse({'data': data, 'isAuthor': is_author}, status=200)
 
 
 # TODO: to patch?
