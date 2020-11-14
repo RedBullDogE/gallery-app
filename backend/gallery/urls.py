@@ -8,6 +8,8 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', views.register),
+
 
     path('create/', views.picture_create),  # CREATE
     path('list/', views.picture_list),  # READ | list

@@ -16,6 +16,55 @@ from .forms import PictureForm
 from django.views.decorators.csrf import csrf_exempt
 
 
+from .forms import RegisterForm
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+@csrf_exempt  # TODO
+def register(request):
+    if request.method == 'POST':
+        user_data = json.loads(request.body)
+        form = RegisterForm(user_data)
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+
+            # Creating user if it not exists
+            user, created = get_user_model().objects.get_or_create(
+                username=username,
+                defaults={'email': email,
+                          'password': password}
+            )
+
+            if not created:
+                data = {
+                    'status': 'failed',
+                    'details': 'User already exists'
+                }
+                return JsonResponse(data, status=409)
+
+            # Right way to set user's password
+            user.set_password(password)
+            user.save()
+
+            data = {
+                'status': 'success',
+                'details': 'Registered',
+            }
+
+            return JsonResponse(data, status=201)
+
+        data = {
+            'status': 'failed',
+            'details': 'Incorrect input data'
+        }
+
+        return JsonResponse(data, status=422)
+
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 @parser_classes([MultiPartParser])

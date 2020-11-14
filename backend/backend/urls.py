@@ -23,5 +23,4 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('gallery.urls')),
-    path('register/', views.register)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
