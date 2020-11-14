@@ -25,7 +25,7 @@
                 <form class="picture-details__edit-form" method="post" v-else>
                     <textarea
                         name="description"
-                        v-model="editing.description"
+                        v-model.trim="editing.description"
                     ></textarea>
                     <button
                         class="edit-btn"
