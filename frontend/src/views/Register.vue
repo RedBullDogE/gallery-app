@@ -2,8 +2,11 @@
     <div class="register-container">
         <form class="register-form" @submit.prevent="submitForm" method="POST">
             <h2>Register</h2>
-            <p class="error" v-if="incorrectCredentials">
-                Inccorrect credentials
+            <p class="error" v-if="incorrectFormData">
+                Inccorrect form data
+            </p>
+            <p class="error" v-if="userAlreadyExists">
+                User with such username already exists
             </p>
             <div class="form-group">
                 <div class="form-group__input">
@@ -116,7 +119,8 @@ export default {
             email: "",
             password: "",
             passwordConfirm: "",
-            incorrectCredentials: false,
+            incorrectFormData: false,
+            userAlreadyExists: false
         };
     },
     validations: {
@@ -139,7 +143,49 @@ export default {
     },
     methods: {
         async submitForm() {
-            
+            this.$v.$touch();
+
+            if (this.$v.$invalid) {
+                this.incorrectFormData = true;
+                return;
+            }
+            // Clearing errors
+            this.incorrectFormData = false;
+            this.userAlreadyExists = false;
+
+
+            const userData = {
+                username: this.username,
+                email: this.email,
+                password: this.password
+            }
+            console.log(userData);
+
+            const response = await fetch("http://127.0.0.1:8000/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            });
+
+            switch (response.status) {
+                case 422:
+                    this.incorrectFormData = true;
+
+                    break;
+                case 409:
+                    this.userAlreadyExists = true;
+                    
+                    break;
+                case 201: {
+                    console.log('Successfuly registered!');
+                    this.$router.push({ name: 'Login' })
+                    break;
+                }
+                default:
+                    console.log("Something goes wrong with register...");
+            }
         },
     },
 };
