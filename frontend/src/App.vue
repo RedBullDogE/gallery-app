@@ -7,7 +7,9 @@
                 >Login</router-link
             >
             <a href="#" class="logout" @click="logout" v-else>Logout</a>
-            <a href="#" class="signin" v-if="!user">Sign In</a>
+            <router-link :to="{ name: 'Register' }" class="register" v-if="!user"
+                >Sign In</router-link
+            >
         </div>
         <div class="user-container"></div>
         <router-view @login="login" :user="user" />
@@ -36,9 +38,6 @@ export default {
         const user = localStorage.getItem("user");
 
         if (user) {
-            // const access = localStorage.getItem("accessToken"),
-            // refresh = localStorage.getItem("refreshToken");
-
             this.user = user;
         }
     },
@@ -99,7 +98,7 @@ h2 {
         margin: 0 3rem;
         font-weight: 600;
 
-        padding: .5rem 1.5rem;
+        padding: 0.5rem 1.5rem;
         background-color: lightseagreen;
         border-radius: 0.5rem;
         box-shadow: 0 0.5rem 2rem rgba(blueviolet, 0.6);
