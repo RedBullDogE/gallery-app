@@ -18,6 +18,12 @@
                     @click="editing.isEdit = !editing.isEdit"
                     >Edit</a
                 >
+                <a
+                    class="picture-details__delete"
+                    v-if="editing.isAuthor && user"
+                    @click="deletePicture"
+                    >Delete</a
+                >
                 <p class="picture-details__author">{{ picture.author }}</p>
                 <p class="picture-details__desc" v-if="!editing.isEdit">
                     {{ picture.description }}
@@ -184,6 +190,37 @@ export default {
 
             this.editing.isEdit = false;
         },
+        async deletePicture() {
+            if (confirm("Are u sure u wanna delete it?")) {
+                const id = this.picture.id;
+                const access = localStorage.getItem("accessToken");
+
+                const response = await fetch(
+                    `http://localhost:8000/api/delete/${id}/`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${access}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                switch (response.status) {
+                    case 403:
+                        console.log("No permissions");
+                        break;
+                    case 200: {
+                        this.$router.push({ name: "Home" });
+                        break;
+                    }
+                    default:
+                        console.log(
+                            "Something went wrong with deleting data..."
+                        );
+                }
+            }
+        },
     },
 };
 </script>
@@ -232,7 +269,8 @@ export default {
             white-space: pre-wrap;
         }
 
-        &__edit {
+        &__edit,
+        &__delete {
             font-size: 1.2rem;
             font-weight: 600;
             margin-right: 2rem;
@@ -240,10 +278,14 @@ export default {
             float: right;
             transition: color 0.2s;
             cursor: pointer;
+        }
 
-            &:hover {
-                color: lightseagreen;
-            }
+        &__edit:hover {
+            color: lightseagreen;
+        }
+
+        &__delete:hover {
+            color: lightcoral;
         }
 
         &__edit-form {
@@ -274,8 +316,8 @@ export default {
 
                 margin-top: 1.5rem;
 
-                box-shadow: 0 .5rem 1.2rem #777;
-                transition: transform .2s;
+                box-shadow: 0 0.5rem 1.2rem #777;
+                transition: transform 0.2s;
 
                 &:active,
                 &:focus {
