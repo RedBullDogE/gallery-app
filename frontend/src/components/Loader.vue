@@ -1,7 +1,7 @@
 <template>
     <div class="loading-container">
-        <div class="loader"></div>
-        <div class="error-message" v-if="error">
+        <div class="loader" v-if="!error"></div>
+        <div class="error-message" v-else>
             Something goes wrong ;( Please, reload the page
         </div>
     </div>
@@ -16,7 +16,7 @@ export default {
 <style lang="scss">
 .loading-container {
     .loader {
-        margin: 5rem auto;
+        margin: 10rem auto;
         border: 1rem solid #f3f3f3; /* Light grey */
         border-top: 1rem solid #3498db; /* Blue */
         border-radius: 50%;

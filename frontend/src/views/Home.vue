@@ -37,7 +37,7 @@ import Pagination from "@/components/Pagination.vue";
 
 export default {
     name: "Home",
-    props: ['user'],
+    props: ["user"],
     components: {
         PictureCard,
         Loader,
@@ -65,16 +65,28 @@ export default {
         async updateData(url) {
             this.loading.loadedPictureCount = 0;
             this.loading.isLoading = true;
-            // TODO: error catching
+
             const response = await fetch(url, {
                 method: "GET",
+            }).catch((err) => {
+                this.loading.error = true;
+                console.error(err);
             });
 
-            const data = await response.json();
+            if (this.loading.error) return;
 
-            this.currentPage = data.page;
-            this.pageCount = data.pageCount;
-            this.pictures = data.data;
+            switch (response.status) {
+                case 200: {
+                    const data = await response.json();
+
+                    this.currentPage = data.page;
+                    this.pageCount = data.pageCount;
+                    this.pictures = data.data;
+                    break;
+                }
+                default:
+                    console.error("Some problems with server...");
+            }
         },
         async prevPage() {
             if (this.currentPage > 1) {
@@ -121,13 +133,26 @@ export default {
 
         const response = await fetch(url, {
             method: "GET",
+        }).catch((err) => {
+            this.loading.error = true;
+            console.error(err);
         });
 
-        const data = await response.json();
+        if (this.loading.error) return;
 
-        this.currentPage = data.page;
-        this.pageCount = data.pageCount;
-        this.pictures = data.data;
+        switch (response.status) {
+            case 200: {
+                const data = await response.json();
+
+                this.currentPage = data.page;
+                this.pageCount = data.pageCount;
+                this.pictures = data.data;
+                break;
+            }
+            default:
+                this.loading.error = true;
+                console.error("Something wrong with the server...");
+        }
     },
 };
 </script>
