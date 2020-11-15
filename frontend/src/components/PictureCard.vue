@@ -2,7 +2,7 @@
     <figure class="picture-card">
         <img
             @load="loaded"
-            :src="`http://localhost:8000${picture.file}`"
+            :src="`http://localhost:8000${picture.thumbnail}`"
             alt="Picture"
             draggable="false"
         />

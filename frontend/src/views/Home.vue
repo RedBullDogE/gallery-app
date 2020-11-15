@@ -65,6 +65,7 @@ export default {
         async updateData(url) {
             this.loading.loadedPictureCount = 0;
             this.loading.isLoading = true;
+            // TODO: error catching
             const response = await fetch(url, {
                 method: "GET",
             });

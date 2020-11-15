@@ -19,4 +19,4 @@ class PictureListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Picture
-        fields = ['id', 'author', 'file']
+        fields = ['id', 'author', 'thumbnail']
