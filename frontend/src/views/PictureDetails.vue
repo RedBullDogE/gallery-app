@@ -1,9 +1,5 @@
 <template>
     <div class="picture-container" v-if="picture && !notFound">
-        <router-link class="link" :to="{ name: 'Home' }"
-            >Back to Home</router-link
-        >
-
         <div class="picture-details">
             <img
                 :src="`http://localhost:8000${picture.file}`"
@@ -230,19 +226,6 @@ export default {
     margin: 5rem auto;
     width: fit-content;
     min-width: 50%;
-
-    .link {
-        display: inline-block;
-        box-shadow: 0 0.5rem 1rem lightskyblue;
-        font-size: 1.4rem;
-        padding: 1rem 2rem;
-        margin: 1rem;
-        transition: transform 0.2s;
-
-        &:active {
-            transform: translateY(3px);
-        }
-    }
 
     .picture-details {
         border-radius: 1rem;
