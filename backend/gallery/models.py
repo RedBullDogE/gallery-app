@@ -14,6 +14,7 @@ class Picture(models.Model):
     )
     description = models.TextField(
         max_length=1000,
+        default='',
         null=True,
         blank=True
     )
@@ -47,7 +48,7 @@ class Picture(models.Model):
                 # set to a default thumbnail
                 raise Exception('Could not create thumbnail - is the file type valid?')
 
-            super(Picture, self).save(*args, **kwargs)
+            self.save()
     
 
     def make_thumbnail(self):
@@ -59,8 +60,6 @@ class Picture(models.Model):
         thumb_name = Path(self.file.name).stem
 
         thumb_filename = thumb_name + '_thumb' + thumb_extension
-
-        print(thumb_filename)
 
         if thumb_extension in ['.jpg', '.jpeg']:
             FTYPE = 'JPEG'
