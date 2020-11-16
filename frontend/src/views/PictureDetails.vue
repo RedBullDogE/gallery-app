@@ -20,7 +20,10 @@
                     @click="deletePicture"
                     >Delete</a
                 >
-                <p class="picture-details__author">{{ picture.author }}</p>
+                <p class="picture-details__author">
+                    {{ picture.author }}
+                    <span>({{ picture.pub_date | datetime }})</span>
+                </p>
                 <p class="picture-details__desc" v-if="!editing.isEdit">
                     {{ picture.description }}
                 </p>
@@ -57,6 +60,17 @@ export default {
         };
     },
     props: ["user"],
+    filters: {
+        datetime(string) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+            const datetime = string.split('T')         
+            const dArr= datetime[0].split('-')
+            const tArr = datetime[1].split('.')[0].split(':')
+
+            return `${tArr[0]}:${tArr[1]} ${dArr[2]} ${months[dArr[1]-1]} ${dArr[0]}`
+        }
+    },
     async mounted() {
         const response = await this.getData();
 
@@ -131,6 +145,7 @@ export default {
                     localStorage.removeItem("user");
                     localStorage.removeItem("accessToken");
                     localStorage.removeItem("refreshToken");
+                    this.$router.push({name: 'Login'})
 
                     break;
                 case 200: {
@@ -245,6 +260,11 @@ export default {
             margin-top: 1rem;
             font-size: 1.6rem;
             font-weight: 600;
+
+            span {
+                font-size: 1.4rem;
+                font-weight: 300;
+            }
         }
 
         &__desc {
