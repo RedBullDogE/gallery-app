@@ -28,7 +28,13 @@ const routes = [
     {
         path: '/create',
         name: 'Create',
-        component: () => import('../views/PictureCreate.vue')
+        component: () => import('../views/PictureCreate.vue'),
+        beforeEnter: (to, from, next) => {
+            const user = localStorage.getItem('user');
+
+            if (user) next()
+            else next({ name: 'Home' })
+        }
     }
 ]
 
