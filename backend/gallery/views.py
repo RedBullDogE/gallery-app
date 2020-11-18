@@ -135,7 +135,6 @@ def picture_details(request, pk):
     return JsonResponse({'data': data, 'isAuthor': is_author}, status=200)
 
 
-# TODO: to patch?
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def picture_change(request, pk):

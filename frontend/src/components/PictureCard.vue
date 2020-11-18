@@ -1,6 +1,5 @@
 <template>
     <figure class="picture-card">
-        <!-- TODO: fix if thumbnail was not created -->
         <img
             @load="loaded"
             :src="`http://localhost:8000${picture.thumbnail}`"

@@ -24,9 +24,10 @@
                     {{ picture.author }}
                     <span>({{ picture.pub_date | datetime }})</span>
                 </p>
-                <p class="picture-details__desc" v-if="!editing.isEdit">
-                    {{ picture.description }}
-                </p>
+                <p 
+                    class="picture-details__desc" 
+                    v-if="!editing.isEdit"
+                    >{{ picture.description }}</p>
                 <form class="picture-details__edit-form" method="post" v-else>
                     <textarea
                         name="description"
