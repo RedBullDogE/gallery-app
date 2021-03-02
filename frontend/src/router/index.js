@@ -13,17 +13,20 @@ const routes = [
     {
         path: '/picture/:id',
         name: 'Details',
-        component: () => import('../views/PictureDetails.vue')
+        component: () => import('../views/PictureDetails.vue'),
+        meta: { title: 'Drown Gallery | Picture' }
     },
     {
         path: '/login',
         name: 'Login',
-        component: () => import('../views/Login.vue')
+        component: () => import('../views/Login.vue'),
+        meta: { title: 'Drown Gallery | Sign In' }
     },
     {
         path: '/register',
         name: 'Register',
-        component: () => import('../views/Register.vue')
+        component: () => import('../views/Register.vue'),
+        meta: { title: 'Drown Gallery | Sign Up' }
     },
     {
         path: '/create',
@@ -34,7 +37,8 @@ const routes = [
 
             if (user) next()
             else next({ name: 'Home' })
-        }
+        },
+        meta: { title: 'Drown Gallery | Add picture' }
     }
 ]
 

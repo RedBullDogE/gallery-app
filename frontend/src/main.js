@@ -6,6 +6,13 @@ import router from './router'
 Vue.config.productionTip = false
 Vue.use(Vuelidate)
 
+const DEFAULT_TITLE = 'Drown Gallery';
+router.afterEach((to) => {
+    Vue.nextTick(() => {
+        document.title = to.meta.title || DEFAULT_TITLE;
+    });
+})
+
 new Vue({
   router,
   render: h => h(App)
